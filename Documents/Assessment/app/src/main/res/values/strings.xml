@@ -6,6 +6,9 @@
 
     <string name="map_api_key">AIzaSyAwlGyEqr0W2AsNlcO7_wmzEKr3gmtQTek</string>
 
+<!--    <string name="map_api_key"> AIzaSyC7YkJnP8_N1hDSD_RL8FJrFCJ6U0wDZ7o</string>-->
+
+
 
     <string name="geofence_unknown_error">
   Unknown error: the Geofence service is not available now.

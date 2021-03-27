@@ -2,20 +2,20 @@ package com.awign.assestment
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.PendingIntent
 import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.icu.text.Transliterator
 import android.location.Location
-import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -29,8 +29,6 @@ import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.*
-import kotlin.math.ln
 
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCameraMoveStartedListener, GoogleMap.OnCameraMoveCanceledListener, GoogleMap.OnCameraIdleListener,GoogleMap.OnMarkerDragListener,GoogleMap.OnMarkerClickListener,GoogleMap.OnMapLongClickListener, GoogleMap.OnMapClickListener,
@@ -62,7 +60,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
     private lateinit var  geoFenceHelperClass: GeoFenceHelperClass
 
 
-
+    private lateinit var alertDialog: AlertDialog
 
     private var geoFencingAlreadyAdded = false
 
@@ -74,6 +72,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
 
     //default Value
      private var accuracyRadius:Double  = 100.0
+
+
 
 
     private lateinit var  currentLocationLatLng: LatLng
@@ -88,21 +88,54 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
         setContentView(R.layout.activity_main)
         initSnakeBar("assa",false)
 
+
+
         mapInit(savedInstanceState)
 
-        if(!hasPermission()){
 
-            initPermission()
-
-        }else{
-            initCurrentLocation()
-        }
-
-
+//        initLocation()
 
         geoFenceHelperClass = GeoFenceHelperClass(this)
     }
 
+    private fun initLocation(){
+        if(!hasPermission() && !checkGPSStatus(this)){
+
+
+                initPermission()
+
+
+
+
+        }else{
+
+             if(!checkGPSStatus(this)){
+                 askToEnableGprs()
+             }else{
+                 Log.d("check","initiate")
+                 initCurrentLocation()
+
+
+             }
+
+        }
+    }
+
+
+
+    override fun onStart() {
+
+        initLocation()
+
+
+
+        super.onStart()
+    }
+
+    override fun onRestart() {
+
+        super.onRestart()
+    }
 
     private fun mapInit(savedInstanceState: Bundle?) {
         var mapViewBundle: Bundle? = null
@@ -110,11 +143,20 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
             mapViewBundle = savedInstanceState.getBundle(resources.getString(R.string.map_api_key))
         }
 
+
+
+
         mapView.onCreate(mapViewBundle)
         mapView.getMapAsync(this)
 
 
+
     }
+
+
+
+
+
 
     private fun initCurrentLocation(){
 
@@ -126,9 +168,38 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
 
     }
 
+    fun checkGPSStatus(context: Context): Boolean {
+        val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    }
 
 
-    override fun onResume() {
+    private fun askToEnableGprs() {
+
+
+            alertDialog = AlertDialog.Builder(this).create()
+            alertDialog.setTitle("Location Permission")
+            alertDialog.setMessage("The app needs location permissions. Please grant this permission to continue using the features of the app.")
+            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes", DialogInterface.OnClickListener { dialogInterface, i ->
+                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                startActivity(intent)
+            })
+            alertDialog.setCancelable(false)
+            alertDialog.show()
+
+
+            if (!alertDialog.isShowing()) {
+                alertDialog.show()
+            }
+
+
+    }
+
+
+
+
+   override fun onResume() {
+
         mapView.onResume()
         super.onResume()
     }
@@ -178,6 +249,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
 
 
     }
+
+
 
 
     private fun setCurrentLocation(lat :Double,lng:Double,accuracy: Float) {
@@ -356,7 +429,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
                 override fun onPermissionsChecked(report: MultiplePermissionsReport) {
                     if (report.areAllPermissionsGranted()) {
 
-                        initCurrentLocation()
+                        if(checkGPSStatus(this@MainActivity)){
+                            initCurrentLocation()
+                        }else{
+                            askToEnableGprs()
+                        }
+
                     }else{
                         Toast.makeText(applicationContext,"Get Permission",Toast.LENGTH_SHORT).show()
                     }
@@ -372,6 +450,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
     }
 
     override fun onLocationChange(location: Location?) {
+
+
 
 
         if (location?.latitude != null && location.longitude != null) {

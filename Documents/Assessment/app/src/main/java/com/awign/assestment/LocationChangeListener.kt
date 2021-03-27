@@ -7,4 +7,7 @@ interface LocationChangeListener {
     fun onLocationChange(location: Location?)
 
     fun showProgressBar(boolean: Boolean)
+
+
+
 }

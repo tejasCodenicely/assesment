@@ -55,7 +55,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
     private lateinit var marker:Marker
 
 
-    private lateinit var geoFenceMarker:Marker
+
+    private lateinit var locationHelper: LocationManagerHandler
 
     private lateinit var  geoFenceHelperClass: GeoFenceHelperClass
 
@@ -86,56 +87,52 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        initSnakeBar("assa",false)
 
-
-
+        initSnakeBar("assa",true)
         mapInit(savedInstanceState)
 
 
-//        initLocation()
+
+
+
+
 
         geoFenceHelperClass = GeoFenceHelperClass(this)
     }
 
-    private fun initLocation(){
-        if(!hasPermission()){
-
-
-                initPermission()
-
-
-
-
-        }else{
-
-             if(!checkGPSStatus(this)){
-                 askToEnableGprs()
-             }else{
-                 Log.d("check","initiate")
-                 initCurrentLocation()
-
-
-             }
-
-        }
-    }
-
-
-
-    override fun onStart() {
-
-        initLocation()
-
-
-
-        super.onStart()
-    }
-
     override fun onRestart() {
 
+
+        initPermission()
         super.onRestart()
     }
+
+    private fun initLocation(){
+
+        initPermission()
+//        if(!hasPermission()){
+//
+//
+//                initPermission()
+//
+//
+//
+//
+//        }else{
+////            if(!checkGPSStatus(this@MainActivity)){
+////                askToEnableGprs()
+////            }else{
+////                initCurrentLocation()
+////            }
+//            initCurrentLocation()
+//
+//        }
+
+
+    }
+
+
+
 
     private fun mapInit(savedInstanceState: Bundle?) {
         var mapViewBundle: Bundle? = null
@@ -163,7 +160,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
 
 //        LocationHelper(this,this)
 
-        LocationManagerHandler(this,this)
+
+        showProgressBar(true)
+
+        locationHelper =   LocationManagerHandler(this,this)
 
 
 
@@ -190,7 +190,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
             alertDialog.show()
 
 
-            if (!alertDialog.isShowing()) {
+            if (!alertDialog.isShowing) {
                 alertDialog.show()
             }
 
@@ -215,11 +215,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
     override fun onDestroy() {
         super.onDestroy()
         mapView.onDestroy()
+        locationHelper.stopUsingGPS()
+
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
         mapView.onLowMemory()
+
     }
 
     @SuppressLint("MissingPermission")
@@ -248,7 +251,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
         googleMap.setOnMapClickListener(this)
 
 
-
+        initLocation()
 
     }
 
@@ -405,10 +408,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
     }
 
 
-    fun isGPSEnabled(mContext: Context): Boolean {
-        val locationManager = mContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-    }
 
 
 
@@ -432,14 +431,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
                 override fun onPermissionsChecked(report: MultiplePermissionsReport) {
                     if (report.areAllPermissionsGranted()) {
 
-                        if(checkGPSStatus(this@MainActivity)){
-                            initCurrentLocation()
-                        }else{
+                        if(!checkGPSStatus(this@MainActivity)){
                             askToEnableGprs()
+                        }else{
+                            initCurrentLocation()
                         }
 
+
+
                     }else{
-                        Toast.makeText(applicationContext,"Get Permission",Toast.LENGTH_SHORT).show()
+                        Toast.makeText(applicationContext,"Get permission -> (use location all the time it will trigger geofence as will)",Toast.LENGTH_SHORT).show()
                     }
                 }
 

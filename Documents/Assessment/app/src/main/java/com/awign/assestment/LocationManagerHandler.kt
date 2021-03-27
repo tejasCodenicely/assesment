@@ -11,6 +11,8 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 
 
 class LocationManagerHandler (private val context: Context,private val  locationCallBack: LocationChangeListener):LocationListener{
@@ -26,11 +28,6 @@ class LocationManagerHandler (private val context: Context,private val  location
     // location
     var location: Location? = null
 
-    // latitude
-    var latitude = 0.0
-
-    // longitude
-    var longitude = 0.0
 
     // The minimum distance to change Updates in meters
     private val MIN_DISTANCE_CHANGE_FOR_UPDATES: Float = 10.0f // 10 meters
@@ -42,6 +39,9 @@ class LocationManagerHandler (private val context: Context,private val  location
 
     private var locationManager: LocationManager
 
+    private  val fusedLocationProviderClient:FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
+
+
     init {
 
 
@@ -51,6 +51,7 @@ class LocationManagerHandler (private val context: Context,private val  location
 
 
 
+        initFuseLocationService()
         getLocation()
 
     }
@@ -99,10 +100,10 @@ class LocationManagerHandler (private val context: Context,private val  location
 
 //                            latitude = location!!.latitude
 //                            longitude = location!!.longitude
-//                            Log.d(
-//                                "Network1",
-//                                getLatitude().toString() + "----" + getLongitude().toString()
-//                            )
+                            Log.d(
+                                "Network1",
+                                location!!.getLatitude().toString() + "----" + location!!.getLongitude().toString()
+                            )
                         }
                     } else {
                         Log.d("Network", "Networkyyyy")
@@ -162,6 +163,21 @@ class LocationManagerHandler (private val context: Context,private val  location
 
 
 
+    @SuppressLint("MissingPermission")
+    fun initFuseLocationService(){
+
+
+//
+//        if(hasPermission()){
+//            fusedLocationProviderClient.lastLocation.addOnSuccessListener {
+//
+//                locationCallBack.onLocationChange(it)
+//
+//            }
+//        }
+
+
+    }
 
 
     private fun hasPermission():Boolean{

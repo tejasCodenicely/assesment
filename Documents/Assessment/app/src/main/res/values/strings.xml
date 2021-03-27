@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">Assessment</string>
+
+
+
+
+    <string name="map_api_key">AIzaSyAwlGyEqr0W2AsNlcO7_wmzEKr3gmtQTek</string>
+
+
+    <string name="geofence_unknown_error">
+  Unknown error: the Geofence service is not available now.
+</string>
+    <string name="geofence_not_available">
+  Geofence service is not available now. Go to Settings>Location>Mode and choose High accuracy.
+</string>
+    <string name="geofence_too_many_geofences">
+  Your app has registered too many geofences.
+</string>
+    <string name="geofence_too_many_pending_intents">
+  You have provided too many PendingIntents to the addGeofences() call.
+</string>
+
+    <string name="insufficient_permissions">Insufficient permissions.</string>
+    <string name="permission_rationale">Location permission is needed for core functionality</string>
+    <string name="permission_denied_explanation">Permission was denied, but is needed for core
+        functionality.</string>
+    <string name="settings">Settings</string>
+</resources>

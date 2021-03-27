@@ -99,7 +99,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
     }
 
     private fun initLocation(){
-        if(!hasPermission() && !checkGPSStatus(this)){
+        if(!hasPermission()){
 
 
                 initPermission()
@@ -161,7 +161,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
     private fun initCurrentLocation(){
 
 
-        LocationHelper(this,this)
+//        LocationHelper(this,this)
+
+        LocationManagerHandler(this,this)
 
 
 
@@ -414,7 +416,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
 
         return ContextCompat.checkSelfPermission(this,
             Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
-            Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&   ContextCompat.checkSelfPermission(this,
+            Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
 
     }
 
